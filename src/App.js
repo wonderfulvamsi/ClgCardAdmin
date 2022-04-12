@@ -24,7 +24,7 @@ const style = {
   borderRadius: '2%'
 };
 
-const link = 'https://radiant-sierra-64853.herokuapp.com/'
+const link = 'https://clgcard.herokuapp.com/'
 
 function App() {
   useEffect(() => {
