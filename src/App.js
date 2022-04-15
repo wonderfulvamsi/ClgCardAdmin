@@ -16,7 +16,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '25%',
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -35,6 +35,10 @@ function App() {
     });
   }, []);
 
+  const [addopen, setAddOpen] = React.useState(false);
+  const handleAddOpen = () => setAddOpen(true);
+  const handleAddClose = () => setAddOpen(false);
+
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -49,7 +53,20 @@ function App() {
   const [password, setPassword] = useState('');
   const [recents, setRecents] = useState([]);
 
+  const [rollno, setRollno] = useState('');
+  const [mobileno, setMobileno] = useState('');
 
+  const addstudent = async () => {
+    await axios.post(link + 'payments/addstudent', {
+      rollno: rollno,
+      mobileno: mobileno
+    }).then((res) => {
+      console.log(res);
+      handleAddClose();
+      setRollno('');
+      setMobileno('');
+    });
+  }
 
   const checkadmin = async () => {
     console.log(userid);
@@ -69,11 +86,13 @@ function App() {
     }
   }
 
+  const [eventtotal, setEventtotal] = useState(0);
   const [bustotal, setBustotal] = useState(0);
   const [libtotal, setLibtotal] = useState(0);
   const [storestotal, setStorestotal] = useState(0);
   const [canteentotal, setCanteentotal] = useState(0);
   const [roll, setRoll] = useState(0);
+  const [event, setEvent] = useState(0);
   const [bus, setBus] = useState(0);
   const [lib, setLib] = useState(0);
   const [stores, setStores] = useState(0);
@@ -94,6 +113,7 @@ function App() {
       setStores(details.data.stores);
       setCanteen(details.data.canteen);
       setLib(details.data.lib);
+      setEvent(details.data.event);
       setLoading(false)
     }).catch((e) => {
       console.log(e);
@@ -120,6 +140,9 @@ function App() {
         else if (item.to == "Library") {
           setLibtotal(libtotal + item.amount);
         }
+        else if (item.to == "Event") {
+          setEventtotal(eventtotal + item.amount);
+        }
       })
     };
     fetchrecents();
@@ -133,6 +156,7 @@ function App() {
       setLib(0);
       setCanteen(0);
       setStores(0);
+      setEvent(0);
       handleClose();
     })
   }
@@ -168,12 +192,36 @@ function App() {
   else {
     return (
       <div className='app'>
-        < div style={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }
+        < div style={{ fontFamily: 'sans-serif', display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }
         }>
           <h1 className='heading'>
             ClgCard
           </h1>
-          <h2 className='logout' onClick={() => { setLoggedin(false); setMeta("Go on, fill up the credentials"); }}>LogOut</h2>
+          <Stack sx={{ marginLeft: '75%' }}>
+            <h2 className='logout' onClick={() => { setLoggedin(false); setMeta("Go on, fill up the credentials"); }}>LogOut</h2>
+            <h2 className='addstudent' onClick={() => { setAddOpen(true); }}>Add A Student</h2>
+          </Stack>
+          <div>
+            <Modal
+              open={addopen}
+              onClose={handleAddClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+
+                <div style={{ height: '80%', width: '100%', textAlign: 'center', }}>
+                  <div style={{ borderRadius: '0.6em', backgroundColor: 'white', fontFamily: 'sans-serif', height: '30vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', }}>
+                    <TextField id="outlined-basic" label="Roll Number" variant="outlined" sx={{ height: '100%', width: '90%', marginTop: '1%', }} onChange={(e) => { setRollno(e.target.value) }} />
+                    <TextField id="outlined-basic" label="Mobile Number" variant="outlined" sx={{ height: '100%', width: '90%', marginTop: '1%' }} onChange={(e) => { setMobileno(e.target.value) }} />
+                    <Button variant='contained' sx={{ height: '30%', width: '30%', backgroundColor: '#548CFF' }} onClick={addstudent}>Add</Button>
+
+                  </div>
+                </div>
+
+              </Box>
+            </Modal>
+          </div>
         </div >
         <div className='fullwrap'>
           <div className='wrapper'>
@@ -195,6 +243,7 @@ function App() {
                 <div style={{ fontSize: 'medium', fontWeight: 'bold', padding: 10, backgroundColor: 'chartreuse', borderRadius: '0.6em', fontFamily: 'sans-serif' }}>Library {libtotal}</div>
                 <div style={{ fontSize: 'medium', fontWeight: 'bold', padding: 10, backgroundColor: 'chartreuse', borderRadius: '0.6em', fontFamily: 'sans-serif' }}>Stores {storestotal}</div>
                 <div style={{ fontSize: 'medium', fontWeight: 'bold', padding: 10, backgroundColor: 'chartreuse', borderRadius: '0.6em', fontFamily: 'sans-serif' }}>Canteen {canteentotal}</div>
+                <div style={{ fontSize: 'medium', fontWeight: 'bold', padding: 10, backgroundColor: 'chartreuse', borderRadius: '0.6em', fontFamily: 'sans-serif' }}>Events {eventtotal}</div>
               </div>
             </div>
           </div>
@@ -230,19 +279,19 @@ function App() {
                         <div style={{ color: '#F0F5F9', marginTop: 10, marginBottom: 20, fontSize: '180%', fontFamily: 'sans-serif' }}>
                           Bus
                         </div>
-                        <h4 style={{ color: '#F3F3F3', marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif' }}>{bus}</h4>
+                        <h4 style={{ textAlign: 'center', color: '#F3F3F3', marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif' }}>{bus}</h4>
                       </Stack>
                       <Stack spacing={-1} sx={{ width: '20%' }} >
                         <div style={{ color: '#F0F5F9', marginTop: 10, marginBottom: 20, fontSize: '180%', fontFamily: 'sans-serif' }}>
                           Library
                         </div>
-                        <h4 style={{ color: '#F3F3F3', marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif' }}>{lib}</h4>
+                        <h4 style={{ textAlign: 'center', color: '#F3F3F3', marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif' }}>{lib}</h4>
                       </Stack>
                       <Stack spacing={-1} sx={{ width: '20%' }}>
                         <div style={{ color: '#F0F5F9', marginTop: 10, marginBottom: 20, fontSize: '180%', fontFamily: 'sans-serif' }}>
                           Stores
                         </div>
-                        <h4 style={{ color: '#F3F3F3', marginBottom: 20, fontSize: '150%', fontFamily: 'sans-serif' }}>{stores}</h4>
+                        <h4 style={{ textAlign: 'center', color: '#F3F3F3', marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif' }}>{stores}</h4>
                       </Stack>
                       <Stack spacing={-1} sx={{ width: '20%' }}>
                         <div style={{ color: '#F0F5F9', marginTop: 10, marginBottom: 20, fontSize: '180%', fontFamily: 'sans-serif' }}>
@@ -250,13 +299,23 @@ function App() {
                         </div>
                         <h4 style={{
                           color: '#F3F3F3',
-                          textAlign: 'left',
+                          textAlign: 'center',
                           marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif'
                         }}>{canteen}</h4>
                       </Stack>
+                      <Stack spacing={-1} sx={{ width: '20%' }}>
+                        <div style={{ color: '#F0F5F9', marginTop: 10, marginBottom: 20, fontSize: '180%', fontFamily: 'sans-serif' }}>
+                          Events
+                        </div>
+                        <h4 style={{
+                          color: '#F3F3F3',
+                          textAlign: 'center',
+                          marginBottom: 10, fontSize: '150%', fontFamily: 'sans-serif'
+                        }}>{event}</h4>
+                      </Stack>
                     </div>
                     <Stack direction={'row'} sx={{ marginTop: '-5%', justifyContent: 'flex-end', alignItems: 'center' }}>
-                      <h3 style={{ marginRight: '5%', fontFamily: 'sans-serif', fontSize: '180%' }}>Total: {' ' + (bus + lib + canteen + stores)}</h3>
+                      <h3 style={{ marginRight: '5%', fontFamily: 'sans-serif', fontSize: '180%' }}>Total: {' ' + (bus + lib + canteen + event + stores)}</h3>
                       <Button variant='contained' onClick={handleOpen} sx={{ fontWeight: 'bloder', fontSize: '100%', marginRight: '5%', height: '80%', width: '30%', backgroundColor: '#548CFF' }}>Clear Credit</Button>
                     </Stack>
                   </div>
