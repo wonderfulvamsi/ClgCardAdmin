@@ -105,7 +105,7 @@ function App() {
 
   useEffect(() => {
     const fetchrecents = async () => {
-      let results = await axios.get(link + 'payments/allhistory');
+      let results = await axios.post(link + 'payments/allhistory');
       setRecents(results.data.reverse());
       results.data.map((item) => {
         if (item.to == "Bus") {
