@@ -126,7 +126,8 @@ function App() {
   useEffect(() => {
     const fetchrecents = async () => {
       let results = await axios.post(link + 'payments/allhistory');
-      setRecents(results.data.reverse());
+      let sucessfulpayments = results.data.filter(item => item.sucessful == true)
+      setRecents(sucessfulpayments.reverse());
       results.data.map((item) => {
         if (item.to == "Bus") {
           setBustotal(bustotal + item.amount);
